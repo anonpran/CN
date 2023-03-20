@@ -1,0 +1,53 @@
+# Djis
+def dijkstra(graph, start, end):
+    # Initialize distances to all nodes as infinity
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    
+    # Initialize the visited set and the predecessor dictionary
+    visited = set()
+    predecessors = {}
+    
+    while len(visited) < len(graph):
+        # Find the unvisited node with the smallest distance
+        current_node = min((node for node in graph if node not in visited), key=lambda node: distances[node])
+        
+        # If we've reached the destination node, construct the path and return it
+        if current_node == end:
+            path = []
+            while current_node in predecessors:
+                path.append(current_node)
+                current_node = predecessors[current_node]
+            path.append(start)
+            path.reverse()
+            return path, distances[end]
+        
+        # If we haven't reached the destination node yet, update the distances to its neighbors
+        for neighbor, weight in graph[current_node].items():
+            distance = distances[current_node] + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                predecessors[neighbor] = current_node
+        
+        # Mark the current node as visited
+        visited.add(current_node)
+    
+    # If we've exhausted all reachable nodes without reaching the destination, there's no path
+    return None, None
+
+
+graph = {
+    1: {2: 5, 4: 6},
+    2: {3: 8, 5: 9, 6: 8},
+    3: {5: 6, 8: 15},
+    4: {6: 4, 7: 9},
+    5: {9: 13},
+    6: {7: 6, 8: 14},
+    7: {9: 11},
+    8: {9: 9, 10: 9},
+    9: {10: 6, 11: 5, 12: 12},
+    10: {},
+    11: {},
+    12: {}
+}
+print(dijkstra(graph, 1,12))
