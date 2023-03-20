@@ -1,0 +1,48 @@
+#Bellford
+def bellman_ford(graph, start, end):
+    # Step 1: Initialize distances and predecessors
+    distances = {node: float('inf') for node in graph}
+    predecessors = {node: None for node in graph}
+    distances[start] = 0
+
+    # Step 2: Relax edges repeatedly
+    for _ in range(len(graph) - 1):
+        for node in graph:
+            for neighbor, weight in graph[node].items():
+                if distances[node] + weight < distances[neighbor]:
+                    distances[neighbor] = distances[node] + weight
+                    predecessors[neighbor] = node
+
+    # Step 3: Check for negative-weight cycles
+    for node in graph:
+        for neighbor, weight in graph[node].items():
+            if distances[node] + weight < distances[neighbor]:
+                raise ValueError("Graph contains a negative-weight cycle")
+
+    # Step 4: Build the shortest path
+    path = []
+    node = end
+    while node is not None:
+        path.append(node)
+        node = predecessors[node]
+    path.reverse()
+
+    # Step 5: Return the shortest path and its weight
+    return path, distances[end]
+
+
+graph = {
+    1: {2: 5, 4: 6},
+    2: {3: 8, 5: 9, 6: 8},
+    3: {5: 6, 8: 15},
+    4: {6: 4, 7: 9},
+    5: {9: 13},
+    6: {7: 6, 8: 14},
+    7: {9: 11},
+    8: {9: 9, 10: 9},
+    9: {10: 6, 11: 5, 12: 12},
+    10: {},
+    11: {},
+    12: {}
+}
+print(bellman_ford(graph, 1,12))
