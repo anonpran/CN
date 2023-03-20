@@ -1,0 +1,35 @@
+#ip
+import math
+
+# Initialize constants
+ETHERNET_MTU = 1500
+WAN_MTU = 572
+IP_HEADER_LENGTH = 20
+IP_DATA_LENGTH = 1800 - IP_HEADER_LENGTH
+
+# Calculate number of fragments needed
+total_fragments = math.ceil(IP_DATA_LENGTH / (WAN_MTU - IP_HEADER_LENGTH))
+
+# Create IP datagram fragments
+for i in range(total_fragments):
+    # Calculate fragment fields
+    more_fragments_bit = 1 if i != total_fragments - 1 else 0
+    fragment_offset = i * (WAN_MTU - IP_HEADER_LENGTH) // 8
+    total_length = IP_HEADER_LENGTH + WAN_MTU if i != total_fragments - 1 else IP_HEADER_LENGTH + IP_DATA_LENGTH % (WAN_MTU - IP_HEADER_LENGTH) + WAN_MTU
+    if total_length > ETHERNET_MTU:
+        total_length = ETHERNET_MTU
+
+    # Print fragment header fields
+    print(f"\nFragment {i+1}:")
+    print(f"  Version:           4")
+    print(f"  Header Length:     {IP_HEADER_LENGTH}")
+    print(f"  Type of Service:   0")
+    print(f"  Total Length:      {total_length}")
+    print(f"  Identification:    12345")
+    print(f"  Flags:             {more_fragments_bit} 1 0")
+    print(f"  Fragment Offset:   {fragment_offset}")
+    print(f"  Time to Live:      64")
+    print(f"  Protocol:          0")
+    print(f"  Header Checksum:   0")
+    print(f"  Source Address:    192.168.1.1")
+    print(f"  Destination Address: 192.168.2.1")
