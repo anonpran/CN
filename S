@@ -1,0 +1,57 @@
+#server
+import socket
+import time
+
+# create server socket
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# define server IP address and port number
+server_address = ('localhost', 5000)
+server_socket.bind(server_address)
+
+# set window size and packet size
+window_size = 4
+packet_size = 1024
+
+# start receiving data from client
+print("Server is listening...")
+seq_num = -1
+while True:
+    data, address = server_socket.recvfrom(packet_size)
+    seq_num = (seq_num + 1) % 6
+    if seq_num == 0:
+        print("Packet Lost:", data.decode())
+    else:
+        print("Received:", data.decode())
+    time.sleep(1)  # simulate delay
+
+
+#client
+import socket
+import time
+
+# create client socket
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# define server IP address and port number
+server_address = ('localhost', 5000)
+
+# set window size and packet size
+window_size = 4
+packet_size = 1024
+
+# simulate data to be sent
+data = ["Packet " + str(i) for i in range(1, 11)]
+
+# start sending data to server
+print("Sending data to server...")
+seq_num = 0
+for i in range(len(data)):
+    if i % 6 == 0:
+        print("Packet Lost:", data[i])
+    else:
+        print("Sent:", data[i])
+        client_socket.sendto(data[i].encode(), server_address)
+    time.sleep(1)  # simulate delay
+
+client_socket.close()
