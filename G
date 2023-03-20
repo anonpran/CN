@@ -1,0 +1,60 @@
+#server
+import socket
+import random
+
+HOST = 'localhost'
+PORT = 8000
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind((HOST, PORT))
+
+# Server waits for messages from client
+while True:
+    message, address = sock.recvfrom(1024)
+    print("Received message: ", message.decode())
+
+    # Randomly drop every 6th packet
+    if random.randint(1,6) == 6:
+        print("Packet loss, sequence number = ", message[:1])
+        continue
+
+    # Send acknowledgement
+    ack = message[:1]
+    sock.sendto(ack, address)
+
+#client
+import socket
+
+HOST = 'localhost'
+PORT = 8000
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+# Define window size and sequence number
+window_size = 4
+sequence_number = 0
+
+# The message to send
+message = "Hello from the client!"
+
+# Loop until all packets have been sent
+while sequence_number <= len(message):
+
+    # Send packets in the current window
+    for i in range(sequence_number, min(sequence_number+window_size, len(message))):
+        packet = str(i) + str(message[i].encode())
+        packet = bytes(packet, 'utf-8')
+        sock.sendto(packet, (HOST, PORT))
+        print("Sending packet: ", packet)
+
+    # Wait for acknowledgement
+    while True:
+        ack, address = sock.recvfrom(1024)
+        if ack.decode() == str(sequence_number):
+            print("Received ACK for packet: ", ack.decode())
+            sequence_number += 1
+            break
+        else:
+            print("Received incorrect ACK: ", ack.decode())
+
+sock.close()
